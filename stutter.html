@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stutter AI Chatbot</title>
+    <style>
+        body{
+            background-color: #0d1117;
+            color: whitesmoke;
+            font-family: "Poppins";
+            font-size: large;
+            line-height: 30px;
+            max-width: 1280px;
+            margin: auto;
+        }
+        #chat div{
+            width: 80%;
+            border: 1px solid darkslateblue;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px auto;
+            filter: drop-shadow(0px 0px 2px darkslateblue);
+        }
+        #sendBtn{
+	    display:block;
+            background: white;
+            color: #0d1117;
+            border: none;
+            border-radius: 50px;
+            margin: 300px auto;
+            padding: 20px;
+ 	    position: sticky;
+            top:10px;
+            z-index: 1;
+            font-size: 20px;
+            font-family:"Poppins";
+            box-shadow: 0px 0px 20px 0px darkslateblue;
+            transition: 0.25s ease-in;
+            cursor: pointer;
+        }
+        #sendBtn:hover{
+            border-radius: 15px;
+            scale: 1.1;
+        }
+    </style>
+</head>
+<body>
+    <button id="sendBtn" onclick="chatbot()">Start Chat</button>
+    <div id="chat"></div>
+    
+    <script>
+        let messages = [{"role": "system", "content": "you are a Local chatbot named 'Stutter' created by me- Developer 'Siddhant Singh' and that works using the LM studio API. always greet with namaste (only once) and use emojis often."}];
+        let once = 1;
+        function chatbot(){
+            let msg = prompt("Enter Your Message");
+            if (!msg) return;
+            
+            const btn = document.getElementById("sendBtn"); 
+            const chat = document.getElementById("chat"); 
+            if(once){
+                 btn.innerText = "Send Message";
+                 btn.style.margin = "30px auto";
+                 btn.style.fontSize = "1rem";
+                 btn.style.scale = "1";
+                 btn.style.padding = "15px";
+                 once = 0;
+            };
+            messages.push({"role": "user", "content": msg});
+            
+            let div = document.createElement("div");    
+            div.innerHTML = "....."
+            chat.append(div);
+            window.scroll(0, document.body.scrollHeight)
+            
+            fetch("http://localhost:1234/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    messages: messages
+                })
+            }).then((res) => res.json()).then((data) => {
+                div.innerHTML = data.choices[0].message.content;
+                messages.push({"role": "assistant", "content": data.choices[0].message.content});
+                window.scroll(0, document.body.scrollHeight);
+            })
+            .catch(err =>{
+                div.innerHTML = err;
+                window.scroll(0, document.body.scrollHeight);
+            });
+        }
+    </script>
+</body>
+</html>
+
